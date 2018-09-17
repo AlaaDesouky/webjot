@@ -17,6 +17,9 @@ const users = require("./routes/users");
 // Passport Config
 require("./config/passport")(passport);
 
+// Handlebars Helpers
+const { formatDate } = require("./helpers/hbs");
+
 // DB Config
 const db = require("./config/database");
 
@@ -25,12 +28,23 @@ const db = require("./config/database");
 mongoose.Promise = global.Promise;
 // Connect to mongoose
 mongoose
-  .connect(db.mongoURI)
+  .connect(
+    db.mongoURI,
+    { useNewUrlParser: true }
+  )
   .then(() => console.log("MongoBD Connected...."))
   .catch(err => console.log(err));
 
 // Handlebars Config
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.engine(
+  "handlebars",
+  exphbs({
+    helpers: {
+      formatDate: formatDate
+    },
+    defaultLayout: "main"
+  })
+);
 app.set("view engine", "handlebars");
 
 // Body Parser Config
@@ -58,6 +72,9 @@ app.use(passport.session());
 
 // Conncet Flash Config
 app.use(flash());
+
+// Moment Config
+app.locals.moment = require("moment");
 
 // Global Variables
 app.use((req, res, next) => {

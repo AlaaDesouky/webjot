@@ -1,7 +1,7 @@
 {{#each ideas}}
 <div class="card card-body mb-2">
     <h4>{{title}}</h4>
-    <p>Created at: {{date}}</p>
+    <span class="float-right">Created at: {{formatDate date "MMMM Do YYYY"}}</span>
     <hr>
     <p>{{details}}</p>
     <a href="ideas/edit/{{id}}" class="btn btn-dark btn-block mb-2">Edit</a>

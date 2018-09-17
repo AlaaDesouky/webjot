@@ -24,14 +24,21 @@ router.get("/add", ensureAuthenticated, (req, res) => {
 router.get("/edit/:id", ensureAuthenticated, (req, res) => {
   Idea.findOne({
     _id: req.params.id
-  }).then(idea => {
-    if (idea.user != req.user.id) {
-      req.flash("error_msg", "Not Authorized");
-      res.redirect("/ideas");
-    } else {
-      res.render("./ideas/edit", { idea: idea });
-    }
-  });
+  })
+    .then(idea => {
+      if (idea.user != req.user.id) {
+        req.flash("error_msg", "Not Authorized");
+        res.redirect("/ideas");
+      } else {
+        res.render("./ideas/edit", { idea: idea });
+      }
+    })
+    .catch((err, idea) => {
+      if (err || !idea) {
+        req.flash("error_msg", "Idea not found");
+        res.redirect("/ideas");
+      }
+    });
 });
 
 // ADD IDEA Route - POST REQUEST
@@ -70,25 +77,39 @@ router.post("/", ensureAuthenticated, (req, res) => {
 router.put("/:id", ensureAuthenticated, (req, res) => {
   Idea.findOne({
     _id: req.params.id
-  }).then(idea => {
-    idea.title = req.body.title;
-    idea.details = req.body.details;
+  })
+    .then(idea => {
+      idea.title = req.body.title;
+      idea.details = req.body.details;
 
-    idea.save().then(idea => {
-      req.flash("success_msg", "Website idea updated");
-      res.redirect("/ideas");
+      idea.save().then(idea => {
+        req.flash("success_msg", "Website idea updated");
+        res.redirect("/ideas");
+      });
+    })
+    .catch((err, idea) => {
+      if (err || !idea) {
+        req.flash("error_msg", "Idea not found");
+        res.redirect("/ideas");
+      }
     });
-  });
 });
 
 // DELETE IDEA Route - DELETE REQUEST
 router.delete("/:id", ensureAuthenticated, (req, res) => {
-  Idea.remove({
+  Idea.deleteOne({
     _id: req.params.id
-  }).then(() => {
-    req.flash("success_msg", "Website idea removed");
-    res.redirect("/ideas");
-  });
+  })
+    .then(() => {
+      req.flash("success_msg", "Website idea removed");
+      res.redirect("/ideas");
+    })
+    .catch((err, idea) => {
+      if (err || !idea) {
+        req.flash("error_msg", "Idea not found");
+        res.redirect("/ideas");
+      }
+    });
 });
 
 module.exports = router;
